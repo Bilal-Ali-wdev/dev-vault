@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevVault
 
-## Getting Started
+Developer workspace and project memory: tasks, work sessions, an encrypted env vault, third-party service accounts, read-only GitHub activity, and an AI assistant (LangChain + Gemini) that answers "where did I stop?" from your own records.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · MongoDB (Mongoose) · LangChain + Google Gemini · JWT sessions (jose) · TOTP MFA (otplib).
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Config lives in `.env.local` (git-ignored; see `.env.example`). Required: `MONGODB_URI`, `GOOGLE_API_KEY`, `ENCRYPTION_KEY`, `JWT_SECRET`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Email:** with `SMTP_HOST/USER/PASS` set, verification codes are emailed. Without them, codes are printed in the terminal running the server.
+- **Gemini:** `GEMINI_MODEL` is tried first, then each of `GEMINI_FALLBACK_MODELS` (handles 503 "high demand").
+- **GitHub:** public repos work without a token; set a read-only `GITHUB_TOKEN` for private repos or higher rate limits.
+- **`ENCRYPTION_KEY` must never change** once data exists — vault values, DB URLs and MFA secrets are encrypted with it.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Flow
 
-## Learn More
+1. Sign up → 2. verify email (6-digit OTP, 10 min, 5 attempts) → 3. connect a database (optional; Supabase / MongoDB / Postgres, tested server-side) → 4. authenticator MFA + 10 recovery codes → dashboard.
 
-To learn more about Next.js, take a look at the following resources:
+Logging in always requires the TOTP code (or a single-use recovery code).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security model
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Vault values, DB connection URLs and TOTP secrets: AES-256-GCM (`src/lib/crypto.ts`).
+- Secret list endpoints never return values. Reveal / copy / `.env` export need an MFA check within 15 minutes and are audit-logged.
+- Every project route checks ownership (`ownedProject` in `src/lib/api.ts`).
+- The AI only receives sessions, tasks, docs, service metadata and commits (`projectRecords` in `src/lib/ai.ts`) — never vault values or DB URLs.
+- DB connection tests block private / loopback addresses and time out after 5 s.
 
-## Deploy on Vercel
+## Layout
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/lib/          db, models, auth, crypto, ai (LangChain), github, dbtest, vault helpers
+src/app/api/      REST API (auth, onboarding, projects, tasks, sessions, secrets, services, docs, assistant)
+src/app/(auth)/   sign up, log in, MFA challenge, verify email, onboarding steps
+src/app/(app)/    dashboard, my tasks, settings, new-project wizard, project workspace tabs
+src/app/page.tsx  landing page
+```

@@ -1,26 +1,211 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* DevVault design tokens — taken from the DevVault design canvas. */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-jakarta), var(--font-inter), sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-brand: #077264;
+  --color-brand-500: #0a8d7c;
+  --color-brand-700: #05584d;
+  --color-brand-50: #e7f4f2;
+  --color-brand-25: #f1f9f7;
+  --color-mint: #8fe3d6;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-ink: #1e293b;
+  --color-ink-2: #334155;
+  --color-ink-3: #475569;
+  --color-muted: #586577;
+  --color-faint: #94a3b8;
+
+  --color-line: #e5e7eb;
+  --color-line-soft: #eef0f3;
+  --color-line-row: #f1f3f5;
+  --color-field: #d5dae0;
+  --color-canvas: #f7f8fa;
+  --color-chip: #f1f3f5;
+
+  --color-success: #1f7a4d;
+  --color-success-500: #39aa70;
+  --color-success-50: #e6f5ec;
+  --color-warn: #9a4f00;
+  --color-warn-50: #fef1e2;
+  --color-warn-25: #fffbf5;
+  --color-warn-line: #f8d9b4;
+  --color-orange: #f6921e;
+  --color-danger: #b42323;
+  --color-danger-500: #d93f3f;
+  --color-danger-50: #fdecec;
+  --color-info: #2b56b0;
+  --color-info-50: #eaf0fc;
+  --color-violet: #5b44b8;
+  --color-violet-50: #efebfb;
+
+  /* Onboarding sidebar */
+  --color-night: #0f1e22;
+  --color-night-2: #13272c;
+  --color-night-line: #22383e;
+  --color-night-text: #b6c2cf;
+
+  /* Marketing */
+  --color-deep: #043530;
+  --color-deep-2: #0a433d;
+  --color-deep-line: #1c5650;
+  --color-sea: #eef5f3;
+  --color-sea-line: #e3ecea;
+  --color-copy: #3c4f4d;
+  --color-copy-dark: #0b1f1d;
+
+  --animate-rise: dv-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-float: dv-float 6s ease-in-out infinite;
+
+  @keyframes dv-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes dv-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 84px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+  a {
+    color: var(--color-brand);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--color-brand-700);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility input {
+  @apply h-[42px] w-full rounded-[9px] border border-field bg-white px-3 text-sm text-ink outline-none transition placeholder:text-faint focus:border-brand-500 focus:shadow-[0_0_0_3px_var(--color-brand-50)];
+}
+
+@utility input-sm {
+  @apply h-[38px] w-full rounded-lg border border-field bg-white px-2.5 text-[13px] text-ink outline-none transition placeholder:text-faint focus:border-brand-500 focus:shadow-[0_0_0_3px_var(--color-brand-50)];
+}
+
+@utility label {
+  @apply text-[13px] font-medium text-ink;
+}
+
+@utility btn {
+  @apply inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3.5 text-[13px] font-semibold whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand text-white hover:bg-brand-700 hover:text-white;
+}
+
+@utility btn-secondary {
+  @apply btn border border-line bg-white font-medium text-ink-2 hover:bg-canvas hover:text-ink;
+}
+
+@utility btn-ghost {
+  @apply btn bg-transparent font-medium text-ink-3 hover:bg-chip;
+}
+
+@utility btn-danger {
+  @apply btn bg-danger text-white hover:bg-[#8f1b1b];
+}
+
+@utility icon-btn {
+  @apply inline-flex h-[30px] w-[30px] items-center justify-center rounded-[7px] border border-line bg-white text-ink-2 transition hover:bg-canvas disabled:opacity-50;
+}
+
+@utility card {
+  @apply rounded-[14px] border border-line bg-white;
+}
+
+@utility pill {
+  @apply inline-flex h-[22px] items-center rounded-md px-2 text-xs font-semibold whitespace-nowrap;
+}
+
+@utility kbd {
+  @apply rounded border border-line bg-white px-[5px] py-px font-mono text-[11px];
+}
+
+@utility code-chip {
+  @apply rounded-[5px] border border-line bg-[#f3f4f6] px-1.5 py-0.5 font-mono text-xs;
+}
+
+@utility eyebrow {
+  @apply self-start rounded-[5px] px-2 py-[3px] text-[11px] font-semibold tracking-[0.05em] uppercase;
+}
+
+@utility sr-only-x {
+  position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+@utility input-area {
+  @apply w-full rounded-[9px] border border-field bg-white px-3 py-2.5 text-sm leading-relaxed text-ink outline-none transition placeholder:text-faint focus:border-brand-500 focus:shadow-[0_0_0_3px_var(--color-brand-50)];
+}
+
+/* Grid-paper background for landing sections. Sits behind content; fades out at the left/right edges.
+   Add `grid-bg-dark` on dark sections to switch the line colour. */
+@utility grid-bg {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--grid-line, rgb(7 114 100 / 0.075)) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line, rgb(7 114 100 / 0.075)) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: center top;
+    mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+  }
+}
+
+@utility grid-bg-dark {
+  --grid-line: rgb(143 227 214 / 0.07);
 }
