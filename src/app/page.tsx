@@ -4,6 +4,7 @@ import { Boxes, Fingerprint, LockKeyhole, ShieldCheck, type LucideIcon } from "l
 import { BrandLogo, type BrandName } from "@/components/brand-logos";
 import { FeatureArt, type FeatureArtName } from "@/components/feature-art";
 import { Logo } from "@/components/logo";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import { Icon, type IconName } from "@/components/icons";
 
 /* ---------------------------------------------------------------- Content */
@@ -112,6 +113,8 @@ const INTEGRATIONS: [BrandName, string][] = [
   ["postgresql", "PostgreSQL"],
   ["mongodb", "MongoDB"],
   ["gemini", "Gemini"],
+  ["openai", "OpenAI"],
+  ["claude", "Claude"],
 ];
 
 const NAV = [
@@ -302,6 +305,7 @@ function DashboardPreview() {
 export default function Landing() {
   return (
     <div className="bg-white text-base text-copy-dark">
+      <SmoothScroll />
       <SiteHeader />
 
       {/* HERO — full-bleed background image filling the whole first screen (the glass header sits on top of it) */}
@@ -370,16 +374,27 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* Integrations — last row of the first screen */}
+        {/* Integrations — last row of the first screen, an endless left→right marquee */}
         <div className="relative z-20 border-t border-sea-line bg-white">
-          <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-center gap-x-10 gap-y-2.5 px-6 py-[clamp(14px,2.6vh,24px)] max-sm:gap-x-7 max-sm:px-4">
-            <span className="text-sm font-medium text-[#5A6B69] max-md:w-full max-md:text-center">Connects to the stack you already use</span>
-            {INTEGRATIONS.map(([key, name]) => (
-              <span key={key} className={`${jak} inline-flex items-center gap-2.5 text-[17px] font-bold text-[#2C3E3C]`}>
-                <BrandLogo name={key} size={26} decorative />
-                <span className="max-sm:sr-only-x">{name}</span>
-              </span>
-            ))}
+          <div className="group mx-auto max-w-[1240px] overflow-hidden py-[clamp(14px,2.6vh,24px)] [mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
+            <ul aria-label="Integrations" className="sr-only">
+              {INTEGRATIONS.map(([key, name]) => (
+                <li key={key}>{name}</li>
+              ))}
+            </ul>
+            {/* Two identical halves; shifting by -50% → 0 loops seamlessly */}
+            <div aria-hidden className="flex w-max animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none">
+              {[0, 1].map((half) => (
+                <div key={half} className="flex shrink-0 items-center gap-14 pr-14 max-sm:gap-9 max-sm:pr-9">
+                  {[...INTEGRATIONS, ...INTEGRATIONS].map(([key, name], i) => (
+                    <span key={`${key}-${i}`} className={`${jak} inline-flex items-center gap-2.5 text-[17px] font-bold whitespace-nowrap text-[#2C3E3C]`}>
+                      <BrandLogo name={key} size={26} decorative />
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
